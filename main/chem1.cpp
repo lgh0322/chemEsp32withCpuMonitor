@@ -6,7 +6,7 @@
 #include <string>
 #include "esp_task_wdt.h"
 #include "esp32_perfmon.h"
-
+#include "freertos/semphr.h"
 static const char *TAG = "handle";
 using namespace std;
 
@@ -24,68 +24,62 @@ extern "C"
 }
 
 string chesult;
-
-void solveChem(const char ga[])
+static SemaphoreHandle_t mutex;
+int solveChem(const char ga[])
 {
-    if (lock == 0)
+    xSemaphoreTake(mutex, portMAX_DELAY);
+    setChem(ga);
+    toMatrixBaby();
+    initMatrix(baby, myRow, myColume);
+    coefficientArray();
+    chesult = "";
+    for (int k = 0; k < myColume; k++)
     {
-        lock = 1;
-        setChem(ga);
-        toMatrixBaby();
-        initMatrix(baby, myRow, myColume);
-        coefficientArray();
-        chesult = "";
-        for (int k = 0; k < myColume; k++)
-        {
-            chesult += to_string(coefficientNum[k]);
-            chesult += "  ";
-        }
-
-        freeMatrix();
-        freeChem();
-        lock = 0;
+        chesult += to_string(coefficientNum[k]);
+        chesult += "  ";
     }
+
+    freeMatrix();
+    freeChem();
+    xSemaphoreGive(mutex);
+    return 0;
 }
 
 static void chem1_task(void *pvParameters)
 {
     while (1)
     {
-        vTaskDelay(10);
-
-        for (int k = 0; k < 100; k++)
+        int s = 0;
+        do
         {
+            if (solveChem(fuck1) == 0)
+            {
+                s++;
+            }
 
-            solveChem(fuck1);
-        }
+        } while (s < 1000);
 
         int x = xPortGetCoreID();
         ESP_LOGI(TAG, "%s    fuck  %d", chesult.c_str(), x);
     }
 }
-
 
 static void chem2_task(void *pvParameters)
 {
     while (1)
     {
-
-        for (int k = 0; k < 100; k++)
-        {
-
+        for (int k = 0; k < 1000; k++)
             solveChem(fuck1);
-        }
         int x = xPortGetCoreID();
-        ESP_LOGI(TAG, "%s    fuck  %d", chesult.c_str(), x);
+        ESP_LOGI(TAG, "%s    ga  %d", chesult.c_str(), x);
     }
-
-    vTaskDelay(10);
 }
-
 
 void app_main(void)
 {
+    mutex = xSemaphoreCreateMutex();
+
     perfmon_start();
-    xTaskCreatePinnedToCore(chem1_task, "chem1", 4096, NULL, 1, &chem1_task_h, 0);
-    xTaskCreatePinnedToCore(chem2_task, "chem2", 4096, NULL, 2, &chem2_task_h, 1);
+    xTaskCreatePinnedToCore(chem1_task, "chem1", 4096, NULL, 1, &chem1_task_h, 1);
+    xTaskCreatePinnedToCore(chem2_task, "chem2", 4096, NULL, 0, &chem2_task_h, 0);
 }
