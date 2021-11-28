@@ -1,64 +1,50 @@
 #include "chem.h"
 
-
-
-#include<vector>
-
-#include <string>
-
 using namespace std;
 
-class ChemItem
+bool ChemItem::operator==(const ChemItem &b)
 {
-public:
-    int type;
-    int num;
-    ChemItem(int myType, int myNum)
+    if (type == b.type && num == b.num)
     {
-        type = myType;
-        num = myNum;
+        return true;
     }
-
-
-
-
-    bool operator == (const ChemItem& b)
+    else
     {
-        if (type == b.type && num == b.num)
-        {
-            return true;
-        }
-        else
-        {
-            return false;
-        }
+        return false;
     }
-};
+}
 
-
-char* chemMine;
-int chemMineLen;
-string chemString;
-int* result;
-vector < string > cutString;
-vector < string > elementList;
-vector < ChemItem > complexResult;
-int** baby;
-
-
-int myRow;
-int myColume;
-
-const ChemItem N1 = ChemItem(0, 0);
-const ChemItem N2 = ChemItem(-1, 0);
-
-
-void freeChem()
+ChemItem::ChemItem(int myType, int myNum)
 {
+    type = myType;
+    num = myNum;
+}
+
+ChemEquation::ChemEquation(const char ga[])
+{
+
+    setChem(ga);
+    toMatrixBaby();
+    matrix = new RationalMatrix(baby, myRow, myColume);
+}
+
+string ChemEquation::myResult()
+{
+    string chesult = "";
+    for (int k = 0; k < myColume; k++)
+    {
+        chesult += to_string(matrix->coefficientNum[k]);
+        chesult += "  ";
+    }
+    return chesult;
+}
+
+ChemEquation::~ChemEquation()
+{
+    delete matrix;
     free(chemMine);
-    free(result);
 
-    for(int i = 0; i < myRow; i++)
+    for (int i = 0; i < myRow; i++)
     {
         free(baby[i]);
     }
@@ -69,9 +55,7 @@ void freeChem()
     complexResult.clear();
 }
 
-
-
-int findEle(string x)
+int ChemEquation::findEle(string x)
 {
     int result = -1;
     int k = 0;
@@ -90,12 +74,12 @@ int findEle(string x)
     return result;
 }
 
-
-void setChem(const char* chem)
+//----------------------------------------parse char array to string list;
+void ChemEquation::setChem(const char *chem)
 {
     int chemLen = strlen(chem);
 
-    chemMine = (char*)malloc(sizeof(char) * chemLen);
+    chemMine = (char *)malloc(sizeof(char) * chemLen);
 
     int chemMineIndex = 0;
 
@@ -114,11 +98,10 @@ void setChem(const char* chem)
     elementList.clear();
 }
 
-
-int convertNumber(int k)
+int ChemEquation::convertNumber(int k)
 {
     int size = chemMineLen;
-    char* num = (char*)malloc(size + 1);
+    char *num = (char *)malloc(size + 1);
     int numIndex = 0;
     int j = k;
     int ord = k;
@@ -152,26 +135,17 @@ int convertNumber(int k)
     }
 }
 
-
-
-
-
-
-
-void toList()
+void ChemEquation::toList()
 {
 
     int bracketFlag = 0;
-    vector < int > bracketItem;
+    vector<int> bracketItem;
 
     int chemIntSize = chemMineLen;
 
     int elementType = 1;
 
     int lastCutIndex = 0;
-
-
-
 
     while (chemMine[lastCutIndex] >= 48 && chemMine[lastCutIndex] <= 57)
     {
@@ -205,13 +179,11 @@ void toList()
             }
 
             complexResult.push_back(N2);
-
         }
         else if (chemMineTemp == 40)
         {
             bracketFlag = 1;
             bracketItem.clear();
-
         }
         else if (chemMineTemp == 41)
         {
@@ -264,18 +236,14 @@ void toList()
             {
                 bracketItem.push_back(complexResult.size() - 1);
             }
-
-
         }
-
     }
 
     cutString.push_back(chemString.substr(lastCutIndex, chemIntSize));
     bracketItem.clear();
 }
 
-
-int signChem(int x)
+int ChemEquation::signChem(int x)
 {
     if (x > 0)
     {
@@ -291,12 +259,10 @@ int signChem(int x)
     }
 }
 
-
-void toMatrixBaby()
+void ChemEquation::toMatrixBaby()
 {
     toList();
-    vector < int > chemListIndex;
-
+    vector<int> chemListIndex;
 
     int m = 0;
     int e = 0;
@@ -325,11 +291,11 @@ void toMatrixBaby()
 
     int n = chemListIndex.size();
 
-    baby = (int**)malloc(sizeof(int*) * m);
+    baby = (int **)malloc(sizeof(int *) * m);
 
     for (int i = 0; i < m; i++)
     {
-        baby[i] = (int*)malloc(sizeof(int) * n);
+        baby[i] = (int *)malloc(sizeof(int) * n);
 
         for (int j = 0; j < n; j++)
         {
@@ -351,8 +317,4 @@ void toMatrixBaby()
     }
 
     chemListIndex.clear();
-
 }
-
-
-

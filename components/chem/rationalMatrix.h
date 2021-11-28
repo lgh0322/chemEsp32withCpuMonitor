@@ -1,18 +1,25 @@
-#ifndef RATIONALMATRIX
-#define RATIONALMATRIX
+#pragma once
 #include "rationalNumber.h"
 #include "stdlib.h"
-#ifdef __cplusplus
-extern "C"
+
+class RationalMatrix
 {
-#endif
-void initMatrix(int ** chem, int myRow, int myColumn);
-void rref();
-void coefficientArray();
-extern int * coefficientNum;
-extern RationalNumber** rationalMatrix;
-void freeMatrix() ;
-#ifdef __cplusplus
-}
-#endif
-#endif
+public:
+    int *coefficientNum;
+
+    RationalMatrix(int **chem, int myRow, int myColumn);
+    ~RationalMatrix();
+
+private:
+    int row = 0;
+    int colume = 0;
+    int absInt(int x);
+    int lcm(int np, int dp);
+    int gcd(int np, int dp);
+    void swapRow(int i, int j);
+    void reduceRowItself(int baseRow);
+    void reduceRow(int baseRow, int secondRow);
+    void rref();
+    void coefficientArray();
+    RationalNumber **rationalMatrix;
+};

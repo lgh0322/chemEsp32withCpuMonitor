@@ -3,6 +3,13 @@
         "string": "cpp",
         "*.ipp": "cpp",
         "bitset": "cpp",
-        "string_view": "cpp"
+        "string_view": "cpp",
+        "new": "cpp",
+        "istream": "cpp",
+        "type_traits": "cpp",
+        "vector": "cpp",
+        "xlocale": "cpp",
+        "xstring": "cpp",
+        "xutility": "cpp"
     }
 }

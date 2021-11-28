@@ -1,14 +1,23 @@
 #include "rationalMatrix.h"
 
-RationalNumber ** rationalMatrix;
-int row = 0;
-int colume = 0;
-int * coefficientNum;
 
 
 
+int RationalMatrix::absInt(int x)
+{
+    if(x < 0)
+    {
+        return -x;
+    }
+    else
+    {
+        return x;
+    }
+}
 
-void initMatrix(int ** chem, int myRow, int myColumn)
+
+
+RationalMatrix::RationalMatrix(int ** chem, int myRow, int myColumn)
 {
     row = myRow;
     colume = myColumn;
@@ -24,11 +33,12 @@ void initMatrix(int ** chem, int myRow, int myColumn)
             rationalMatrix[k][j].denominator = 1;
         }
     }
+    coefficientArray();
 }
 
 
 
-void freeMatrix()
+RationalMatrix::~RationalMatrix()
 {
     for (int k = 0; k < row; k++)
     {
@@ -41,7 +51,7 @@ void freeMatrix()
 }
 
 
-void swapRow(int i, int j)
+void RationalMatrix::swapRow(int i, int j)
 {
     if (i == j)
     {
@@ -52,49 +62,49 @@ void swapRow(int i, int j)
 
     for (int k = 0; k < colume; k++)
     {
-        set( & temp, & rationalMatrix[i][k]);
-        set( & rationalMatrix[i][k], & rationalMatrix[j][k]);
-        set( & rationalMatrix[j][k], & temp);
+        temp.set(& rationalMatrix[i][k]);
+        rationalMatrix[i][k].set(& rationalMatrix[j][k]);
+        rationalMatrix[j][k].set(& temp);
     }
 }
 
 
-void reduceRowItself(int baseRow)
+void RationalMatrix::reduceRowItself(int baseRow)
 {
     RationalNumber temp;
-    set( & temp, & (rationalMatrix[baseRow][baseRow]));
-    inv( & temp);
+    temp.set(  & (rationalMatrix[baseRow][baseRow]));
+    temp.inv();
 
     for (int k = 0; k < colume; k++)
     {
-        multiply( & (rationalMatrix[baseRow][k]), & temp);
+        (rationalMatrix[baseRow][k]).multiply(  & temp);
     }
 }
 
 
-void reduceRow(int baseRow, int secondRow)
+void RationalMatrix::reduceRow(int baseRow, int secondRow)
 {
     RationalNumber temp;
-    set( & temp, & (rationalMatrix[secondRow][baseRow]));
+    temp.set(& (rationalMatrix[secondRow][baseRow]));
 
     for (int k = 0; k < colume; k++)
     {
         RationalNumber baseRowTemp;
-        set( & baseRowTemp, & (rationalMatrix[baseRow][k]));
-        multiply( & baseRowTemp, & temp);
-        strains( & baseRowTemp);
-        add( & rationalMatrix[secondRow][k], & baseRowTemp);
+        baseRowTemp.set( & (rationalMatrix[baseRow][k]));
+        baseRowTemp.multiply( & temp);
+        baseRowTemp.strains();
+        rationalMatrix[secondRow][k].add( &baseRowTemp);
     }
 }
 
 
-void rref()
+void RationalMatrix::rref()
 {
     for (int i = 0; i < row; i++)
     {
         for (int j = i; j < row; j++)
         {
-            if (!isZero( & rationalMatrix[j][i]))
+            if (!rationalMatrix[j][i].isZero())
             {
                 swapRow(j, i);
                 reduceRowItself(i);
@@ -119,7 +129,7 @@ void rref()
 
 
 
-int gcd(int np, int dp)
+int RationalMatrix::gcd(int np, int dp)
 {
     int npt = absInt(np);
     int dpt = absInt(dp);
@@ -136,13 +146,13 @@ int gcd(int np, int dp)
     return npt;
 }
 
-int lcm(int np, int dp)
+int RationalMatrix::lcm(int np, int dp)
 {
     return np * dp / gcd(np, dp);
 }
 
 
-void coefficientArray()
+void RationalMatrix::coefficientArray()
 {
     rref();
     int * deu;

@@ -1,24 +1,18 @@
-#ifndef RATIONALNUMBER
-#define RATIONALNUMBER
-#ifdef __cplusplus
-extern "C"
+#pragma once
+
+class RationalNumber
 {
-#endif
-typedef  struct
-{
+public:
     int numerator;
     int denominator;
-} RationalNumber;
+    void set(RationalNumber *b);
+    void inv();
+    void add( RationalNumber *b);
+    void multiply( RationalNumber *b);
+    void strains();
+    int isZero();
+    int absInt(int x);
 
-
-void set( RationalNumber *a,  RationalNumber *b);
-void inv( RationalNumber* x);
-void add( RationalNumber *a,  RationalNumber *b);
-void multiply( RationalNumber *a,  RationalNumber *b);
-void strains( RationalNumber* x);
-int isZero( RationalNumber* x);
-int absInt(int x);
-#ifdef __cplusplus
-}
-#endif
-#endif
+private:
+    void simplify(RationalNumber *x);
+};
